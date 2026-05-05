@@ -1,0 +1,59 @@
+# YAML
+name: Deploy Java to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main  # Trigger deployment on push to main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout source code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up JDK
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Step 3: Build the Java application using Maven
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # Step 4: Configure AWS CLI with GitHub secrets
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Step 5: Deploy to AWS Elastic Beanstalk
+      - name: Deploy to Elastic Beanstalk
+        env:
+          APPLICATION_NAME: ${{ secrets.BEANSTALK_APP_NAME }}
+          ENVIRONMENT_NAME: ${{ secrets.BEANSTALK_ENV_NAME }}
+        run: |
+          # Package the built JAR/WAR into zip for Beanstalk
+          zip -r application.zip target/*.jar target/*.jar
+          
+          # Create a new application version
+          VERSION_LABEL="deploy-$(date +%Y%m%d%H%M%S)"
+          aws elasticbeanstalk create-application-version \
+            --application-name $APPLICATION_NAME \
+            --version-label $VERSION_LABEL \
+            --source-bundle S3Bucket="$APPLICATION_NAME",S3Key="$VERSION_LABEL.zip" || true
+          
+          # Upload the ZIP to S3 (Beanstalk default bucket) 
+          aws s3 cp application.zip s3://$APPLICATION_NAME/$VERSION_LABEL.zip
+          
+          # Update environment to new version
+          aws elasticbeanstalk update-environment \
+            --environment-name $ENVIRONMENT_NAME \
+            --version-label $VERSION_LABEL
