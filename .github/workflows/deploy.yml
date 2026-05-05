@@ -48,10 +48,10 @@ jobs:
           aws elasticbeanstalk create-application-version \
             --application-name $APPLICATION_NAME \
             --version-label $VERSION_LABEL \
-            --source-bundle S3Bucket="$APPLICATION_NAME",S3Key="$VERSION_LABEL.zip" || true
+            --source-bundle S3Bucket="my-bucks-v1",S3Key="$VERSION_LABEL.zip" || true
           
           # Upload the ZIP to S3 (Beanstalk default bucket) 
-          aws s3 cp application.zip s3://$APPLICATION_NAME/$VERSION_LABEL.zip
+          aws s3 cp application.zip s3://my-bucks-v1/$VERSION_LABEL.zip
           
           # Update environment to new version
           aws elasticbeanstalk update-environment \
