@@ -43,11 +43,12 @@ jobs:
           # Package the built JAR/WAR into zip for Beanstalk
           zip -r application.zip target/*.jar target/*.jar
           
-          # Upload the ZIP to S3 (Beanstalk default bucket) 
-          aws s3 cp application.zip s3://elasticbeanstalk-ap-south-1-205714230743/$VERSION_LABEL.zip
-          
           # Create a new application version
           VERSION_LABEL="deploy-$(date +%Y%m%d%H%M%S)"
+          
+          # Upload the ZIP to S3 (Beanstalk default bucket) 
+          aws s3 cp application.zip s3://elasticbeanstalk-ap-south-1-205714230743/$VERSION_LABEL.zip
+                 
           aws elasticbeanstalk create-application-version \
             --application-name $APPLICATION_NAME \
             --version-label $VERSION_LABEL \
