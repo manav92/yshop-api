@@ -3,7 +3,7 @@ spring:
     name: www
   datasource:
 #    url: jdbc:postgresql://localhost:5432/catalogdb
-    url: jdbc:postgresql:jdbc:postgresql://database-2.c5cq0qqg2ihe.ap-south-1.rds.amazonaws.com:5432/postgres
+    url: jdbc:postgresql:jdbc:postgresql://database-1.c5cq0qqg2ihe.ap-south-1.rds.amazonaws.com:5432/postgres
     username: postgres
     password: postgres
   jpa:
@@ -12,4 +12,18 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+logging:
+  level:
+    # Root level for the entire application
+    root: INFO
+    # Specific level for Spring Framework
+    org.springframework.web: DEBUG
+    # Specific level for your application code
+    com.yshop.www: TRACE
+
+  file:
+    # Creates a file named app.log in the 'logs' directory
+    name: logs/app.log
 
