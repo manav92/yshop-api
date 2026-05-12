@@ -41,7 +41,7 @@ jobs:
           ENVIRONMENT_NAME: ${{ secrets.BEANSTALK_ENV_NAME }}
         run: |
           # Package the built JAR/WAR into zip for Beanstalk
-          zip -r application.zip Procfile target/*.jar
+          zip -r application.zip .ebextensions Procfile target/*.jar
           
           # Create a new application version
           VERSION_LABEL="deploy-$(date +%Y%m%d%H%M%S)"
